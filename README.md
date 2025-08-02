@@ -55,6 +55,9 @@ We selected **Problem Statement 2**:
 
 To test admin panel:
 
+email : admin@civic.com
+password : admin123
+
 1. Ask team for admin credentials OR
 2. Add your Firebase UID under the `Admin` collection manually
 
