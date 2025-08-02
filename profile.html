@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile - CivicTrack</title>
+  <link rel="stylesheet" href="css/index.css" />
+</head>
+<body>
+
+ <header class="header">
+  <div class="logo">CivicTrack</div>
+  <div class="user-actions">
+    <a href="index.html" class="home-btn">Home</a>
+    <button id="logoutBtn" class="logout-btn">Logout</button>
+  </div>
+</header>
+
+<main class="login-container">
+  <form id="profileForm" class="auth-form">
+    <h2>🙋‍♂️ Your Profile</h2>
+
+    <label>Email:</label>
+    <input type="email" id="email" disabled />
+
+    <label>Full Name:</label>
+    <input type="text" id="name" />
+
+    <button type="submit">Update Profile</button>
+  </form>
+</main>
+
+<section style="padding: 2rem;">
+  <h2 style="text-align:center; color:#0077b6;">📋 Your Reports</h2>
+  <div class="issue-grid" id="userReports" style="margin-top: 1rem;"></div>
+</section>
+
+  <section class="issue-grid" id="userReports" style="margin-top: -30px;"></section>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <script src="js/firebaseConfig.js"></script>
+  <script>
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const emailInput = document.getElementById("email");
+    const nameInput = document.getElementById("name");
+    const reportContainer = document.getElementById("userReports");
+
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        alert("Please log in first.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      emailInput.value = user.email;
+      nameInput.value = user.displayName || "";
+
+      loadUserReports(user.uid);
+    });
+
+    document.getElementById("profileForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const user = auth.currentUser;
+      const newName = nameInput.value.trim();
+      if (!newName) return alert("Name cannot be empty.");
+
+      try {
+        await user.updateProfile({ displayName: newName });
+        alert("Profile updated successfully!");
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    });
+
+    async function loadUserReports(uid) {
+      const snap = await db.collection("Reports").where("createdBy", "==", uid).get();
+      reportContainer.innerHTML = "";
+
+      if (snap.empty) {
+        reportContainer.innerHTML = "<p style='padding:2rem;'>No reports submitted yet.</p>";
+        return;
+      }
+
+      snap.forEach(doc => {
+        const r = doc.data();
+        const img = r.photoBase64?.[0] || 'https://via.placeholder.com/250x150';
+        const card = document.createElement("a");
+        card.href = `editreport.html?id=${doc.id}`;
+        card.className = "issue-card report-link";
+        card.innerHTML = `
+        <img src="${img}" />
+        <div class="info">
+            <div class="tags">
+            <span class="tag">${r.category}</span>
+            <span class="status ${r.status.toLowerCase().replace(" ", "-")}">${r.status}</span>
+            </div>
+            <h3>${r.title}</h3>
+            <p>${r.description?.slice(0, 60)}...</p>
+            <small>📍 ${r.lat.toFixed(2)}, ${r.lng.toFixed(2)}</small>
+        </div>
+        `;
+        reportContainer.appendChild(card);
+      });
+    }
+  </script>
+    <script>
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+        firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+        });
+    });
+    </script>
+
+
+</body>
+</html>

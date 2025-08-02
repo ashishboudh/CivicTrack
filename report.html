@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Report Issue - CivicTrack</title>
+  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">CivicTrack</div>
+    <div class="user-actions">
+      <a href="index.html" class="home-btn">Home</a>
+    </div>
+  </header>
+
+  <main class="login-container">
+    <form id="reportForm" class="auth-form" style="max-width: 700px;">
+      <h2>📍 Report a Civic Issue</h2>
+
+      <label for="title">Issue Title:</label>
+      <input type="text" id="title" required placeholder="e.g., Broken streetlight near park" />
+
+      <label for="category">Category:</label>
+      <select id="category" required>
+        <option disabled selected>Select Category</option>
+        <option>Roads</option>
+        <option>Lighting</option>
+        <option>Water Supply</option>
+        <option>Cleanliness</option>
+        <option>Public Safety</option>
+        <option>Obstructions</option>
+      </select>
+
+      <label for="description">Description:</label>
+      <textarea id="description" rows="4" required placeholder="Describe the issue briefly..."></textarea>
+
+      <label>Choose Location of Incident:</label>
+      <p><b>Selected Location:</b> <span id="locationDisplay">Auto-detecting...</span></p>
+      <div id="map" style="height: 300px; margin-bottom: 1rem; border-radius: 8px; overflow: hidden;"></div>
+
+      <label for="photos">Upload 2–3 Photos:</label>
+      <input type="file" id="photos" accept="image/*" multiple />
+
+      <button type="submit">Submit Report</button>
+    </form>
+  </main>
+
+  <!-- Leaflet & Firebase -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Config + Logic -->
+  <script src="js/firebaseConfig.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/report.js"></script>
+
+  
+</body>
+</html>

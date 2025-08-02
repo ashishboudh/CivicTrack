@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Report Details - CivicTrack</title>
+  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">CivicTrack</div>
+    <div class="user-actions">
+      <a href="index.html" class="home-btn">🏠 Home</a>
+    </div>
+  </header>
+
+  <main class="login-container">
+    <div class="auth-form" style="max-width: 700px;">
+      <h2 id="reportTitle">Loading...</h2>
+
+      <div class="tags" style="margin-bottom: 1rem;">
+        <span class="tag" id="reportCategory"></span>
+        <span class="status" id="reportStatus"></span>
+      </div>
+
+      <p id="reportDescription" style="margin-bottom: 1rem;"></p>
+
+      <p><strong>Reported by:</strong> <span id="reportUser"></span></p>
+      <p><strong>Location:</strong> <span id="reportLocation"></span></p>
+
+      <div id="reportImages" style="margin-top: 1.5rem; display: flex; gap: 15px; flex-wrap: wrap;"></div>
+
+      <h3 style="margin-top: 2rem;">📍 Location on Map</h3>
+      <div id="map" style="height: 300px; border-radius: 8px; margin-top: 0.5rem;"></div>
+    </div>
+  </main>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebaseConfig.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    const db = firebase.firestore();
+
+    async function loadReportDetails() {
+      const params = new URLSearchParams(window.location.search);
+      const reportId = params.get("id");
+      if (!reportId) {
+        alert("Report ID not found in URL.");
+        return;
+      }
+
+      const doc = await db.collection("Reports").doc(reportId).get();
+      if (!doc.exists) {
+        alert("No report found.");
+        return;
+      }
+
+      const data = doc.data();
+
+      document.getElementById("reportTitle").textContent = data.title;
+      document.getElementById("reportCategory").textContent = data.category;
+      document.getElementById("reportStatus").textContent = data.status;
+      document.getElementById("reportStatus").className = "status " + data.status.toLowerCase().replace(" ", "-");
+      document.getElementById("reportDescription").textContent = data.description;
+
+      let display = "Anonymous";
+      if (data.createdByName) {
+        display = data.createdByName;
+      } else if (data.createdByEmail) {
+        display = data.createdByEmail;
+      }
+      document.getElementById("reportUser").textContent = display;
+
+      const lat = data.lat;
+      const lng = data.lng;
+      document.getElementById("reportLocation").textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+
+      const container = document.getElementById("reportImages");
+      (data.photoBase64 || []).forEach(base64 => {
+        const img = document.createElement("img");
+        img.src = base64;
+        img.style.width = "180px";
+        img.style.borderRadius = "6px";
+        img.style.boxShadow = "0 2px 10px rgba(0,0,0,0.15)";
+        container.appendChild(img);
+      });
+
+      // Initialize Leaflet map
+      const map = L.map('map').setView([lat, lng], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+      L.marker([lat, lng]).addTo(map).bindPopup("Reported Location").openPopup();
+    }
+
+    loadReportDetails();
+  </script>
+
+  
+</body>
+</html>

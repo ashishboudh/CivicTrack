@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - CivicTrack</title>
+  <link rel="stylesheet" href="css/index.css" />
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo">CivicTrack</div>
+    <div class="user-actions">
+      <a href="index.html" class="home-btn">Home</a>
+    </div>
+  </header>
+
+  <main class="login-container">
+    <form id="loginForm" class="auth-form">
+      <h2>🔐 Login to Your Account</h2>
+
+      <label>Email:</label>
+      <input type="email" id="email" required placeholder="you@example.com" />
+
+      <label>Password:</label>
+      <input type="password" id="password" required placeholder="********" />
+
+      <button type="submit">Login</button>
+
+      <p class="form-footer">
+        Don’t have an account?
+        <a href="register.html">Register here</a>
+      </p>
+      <div style="text-align: center; margin-top: 1.5rem;">
+    <a href="admin.html" class="admin-login-btn">Login as Admin</a>
+    </div>
+    </form>
+    
+  </main>
+
+  
+
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="js/firebaseConfig.js"></script>
+  <script>
+    const auth = firebase.auth();
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        alert("Login successful!");
+        window.location.href = "index.html";
+      } catch (error) {
+        alert("Login failed: " + error.message);
+      }
+    });
+  </script>
+
+   <footer class="footer">
+  <div class="footer-content">
+    <p>🚀 Built with ❤️ by the <strong>Hack Overflow</strong> team</p>
+    <p>© 2025 CivicTrack | Empowering Citizens, One Report at a Time</p>
+  </div>
+  </footer>
+
+</body>
+</html>
